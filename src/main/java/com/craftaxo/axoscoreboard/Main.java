@@ -37,6 +37,7 @@ public final class Main extends JavaPlugin implements Listener {
             getLogger().info("Vault ekonomisi bulunamadi, para kismi devre disi kalacak!");
         }
 
+        // Her 1 saniyede bir (20 tick) tüm scoreboard'ları günceller
         Bukkit.getScheduler().runTaskTimer(this, this::updateScoreboards, 0L, 20L);
         getLogger().info("AxoScoreboard tam özellikli olarak aktif edildi!");
     }
@@ -81,7 +82,7 @@ public final class Main extends JavaPlugin implements Listener {
 
     private int getKills(Player player) {
         return statsConfig.getInt("stats." + player.getUniqueId() + ".kills", 0);
-    }
+or }
 
     private int getDeaths(Player player) {
         return statsConfig.getInt("stats." + player.getUniqueId() + ".deaths", 0);
@@ -174,9 +175,8 @@ public final class Main extends JavaPlugin implements Listener {
                             rank = group.substring(0, 1).toUpperCase() + group.substring(1);
                         }
 
-                        // Prefix (Tag) Çekme
                         Method getCachedDataMethod = user.getClass().getMethod("getCachedData");
-                        Object cachedData = getCachedDataMethod.invoke(user);
+                        Object cachedData = cachedDataMethod.invoke(user);
                         Method getMetaDataMethod = cachedData.getClass().getMethod("getMetaData");
                         Object metaData = getMetaDataMethod.invoke(cachedData);
                         Method getPrefixMethod = metaData.getClass().getMethod("getPrefix");
@@ -189,19 +189,37 @@ public final class Main extends JavaPlugin implements Listener {
                 }
             }
 
-            // Trap Bilgileri (Senin kurduğun veya davet edildiğin her yerde çalışır)
+            // --- TRAP BİLGİLERİ (Nerede olursan ol, üyesi/sahibi olduğun trapi bulur) ---
             String trapOwner = "Yok";
             String trapId = "-";
             String trapHealth = "-";
 
             if (trapPlugin != null && trapPlugin.isEnabled()) {
                 try {
-                    Location loc = player.getLocation();
-                    Chunk chunk = loc.getChunk();
-                    
-                    Method getTrapMethod = trapPlugin.getClass().getMethod("getTrapByChunk", Chunk.class);
-                    Object trapInstance = getTrapMethod.invoke(trapPlugin, chunk);
+                    Object trapInstance = null;
 
+                    // 1. Önce oyuncunun doğrudan üyesi veya sahibi olduğu trapi arayan metotları dener
+                    try {
+                        Method getPlayerTrapMethod = trapPlugin.getClass().getMethod("getPlayerTrap", Player.class);
+                        trapInstance = getPlayerTrapMethod.invoke(trapPlugin, player);
+                    } catch (Exception ignored) {}
+
+                    if (trapInstance == null) {
+                        try {
+                            Method getPlayersTrapMethod = trapPlugin.getClass().getMethod("getPlayersTrap", Player.class);
+                            trapInstance = getPlayersTrapMethod.invoke(trapPlugin, player);
+                        } catch (Exception ignored) {}
+                    }
+
+                    // 2. Eğer özel bir metot yoksa, oyuncunun o an bulunduğu konumdaki chunk üzerinden kontrol eder
+                    if (trapInstance == null) {
+                        Location loc = player.getLocation();
+                        Chunk chunk = loc.getChunk();
+                        Method getTrapByChunkMethod = trapPlugin.getClass().getMethod("getTrapByChunk", Chunk.class);
+                        trapInstance = getTrapByChunkMethod.invoke(trapPlugin, chunk);
+                    }
+
+                    // Bulunan trap objesinden verileri çek
                     if (trapInstance != null) {
                         Method getOwnerMethod = trapInstance.getClass().getMethod("getOwner");
                         Method getIdMethod = trapInstance.getClass().getMethod("getId");
