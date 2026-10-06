@@ -1,0 +1,4 @@
+# AxoScoreBoard Ana Yapılandırma Dosyası
+server-ip: "play.axocraft.com"
+scoreboard-title: "&6&lAxoCraft"
+update-interval: 20
