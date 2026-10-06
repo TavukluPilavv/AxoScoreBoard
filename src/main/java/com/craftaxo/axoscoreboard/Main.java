@@ -82,7 +82,7 @@ public final class Main extends JavaPlugin implements Listener {
 
     private int getKills(Player player) {
         return statsConfig.getInt("stats." + player.getUniqueId() + ".kills", 0);
-or }
+    }
 
     private int getDeaths(Player player) {
         return statsConfig.getInt("stats." + player.getUniqueId() + ".deaths", 0);
@@ -198,7 +198,6 @@ or }
                 try {
                     Object trapInstance = null;
 
-                    // 1. Önce oyuncunun doğrudan üyesi veya sahibi olduğu trapi arayan metotları dener
                     try {
                         Method getPlayerTrapMethod = trapPlugin.getClass().getMethod("getPlayerTrap", Player.class);
                         trapInstance = getPlayerTrapMethod.invoke(trapPlugin, player);
@@ -211,7 +210,6 @@ or }
                         } catch (Exception ignored) {}
                     }
 
-                    // 2. Eğer özel bir metot yoksa, oyuncunun o an bulunduğu konumdaki chunk üzerinden kontrol eder
                     if (trapInstance == null) {
                         Location loc = player.getLocation();
                         Chunk chunk = loc.getChunk();
@@ -219,7 +217,6 @@ or }
                         trapInstance = getTrapByChunkMethod.invoke(trapPlugin, chunk);
                     }
 
-                    // Bulunan trap objesinden verileri çek
                     if (trapInstance != null) {
                         Method getOwnerMethod = trapInstance.getClass().getMethod("getOwner");
                         Method getIdMethod = trapInstance.getClass().getMethod("getId");
