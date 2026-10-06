@@ -1,0 +1,5 @@
+name: AxoScoreBoard
+version: 1.0-SNAPSHOT
+main: com.craftaxo.axoscoreboard.Main
+api-version: '1.21'
+softdepend: [LuckPerms, TrapPlugin, Vault]
