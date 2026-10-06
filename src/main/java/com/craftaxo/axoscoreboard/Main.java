@@ -176,7 +176,7 @@ public final class Main extends JavaPlugin implements Listener {
                         }
 
                         Method getCachedDataMethod = user.getClass().getMethod("getCachedData");
-                        Object cachedData = cachedDataMethod.invoke(user);
+                        Object cachedData = getCachedDataMethod.invoke(user);
                         Method getMetaDataMethod = cachedData.getClass().getMethod("getMetaData");
                         Object metaData = getMetaDataMethod.invoke(cachedData);
                         Method getPrefixMethod = metaData.getClass().getMethod("getPrefix");
