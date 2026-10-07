@@ -21,6 +21,7 @@ import org.bukkit.scoreboard.*;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.Collection;
 
 public final class Main extends JavaPlugin implements Listener {
 
@@ -176,7 +177,7 @@ public final class Main extends JavaPlugin implements Listener {
                         }
 
                         Method getCachedDataMethod = user.getClass().getMethod("getCachedData");
-                        Object cachedData = getCachedDataMethod.invoke(user);
+                        Object cachedData = cachedDataMethod.invoke(user);
                         Method getMetaDataMethod = cachedData.getClass().getMethod("getMetaData");
                         Object metaData = getMetaDataMethod.invoke(cachedData);
                         Method getPrefixMethod = metaData.getClass().getMethod("getPrefix");
@@ -189,7 +190,7 @@ public final class Main extends JavaPlugin implements Listener {
                 }
             }
 
-            // --- TRAP BİLGİLERİ (Nerede olursan ol, üyesi/sahibi olduğun trapi bulur) ---
+            // --- TRAP BİLGİLERİ (Gelişmiş Yansıtma ve Liste Tarama Desteği) ---
             String trapOwner = "Yok";
             String trapId = "-";
             String trapHealth = "-";
@@ -198,37 +199,123 @@ public final class Main extends JavaPlugin implements Listener {
                 try {
                     Object trapInstance = null;
 
-                    try {
-                        Method getPlayerTrapMethod = trapPlugin.getClass().getMethod("getPlayerTrap", Player.class);
-                        trapInstance = getPlayerTrapMethod.invoke(trapPlugin, player);
-                    } catch (Exception ignored) {}
-
-                    if (trapInstance == null) {
+                    // 1. Doğrudan oyuncuya ait trap metotlarını dene
+                    String[] playerMethodNames = {"getPlayerTrap", "getPlayersTrap", "getTrapByPlayer", "getPlayersActiveTrap"};
+                    for (String mName : playerMethodNames) {
                         try {
-                            Method getPlayersTrapMethod = trapPlugin.getClass().getMethod("getPlayersTrap", Player.class);
-                            trapInstance = getPlayersTrapMethod.invoke(trapPlugin, player);
+                            Method m = trapPlugin.getClass().getMethod(mName, Player.class);
+                            trapInstance = m.invoke(trapPlugin, player);
+                            if (trapInstance != null) break;
                         } catch (Exception ignored) {}
                     }
 
+                    // 2. Oyuncu UUID ile bulmayı dene
+                    if (trapInstance == null) {
+                        try {
+                            Method m = trapPlugin.getClass().getMethod("getTrap", java.util.UUID.class);
+                            trapInstance = m.invoke(trapPlugin, player.getUniqueId());
+                        } catch (Exception ignored) {}
+                    }
+
+                    // 3. Bulunmadıysa oyuncunun bulunduğu lokasyon/chunk üzerindeki trapi dene
                     if (trapInstance == null) {
                         Location loc = player.getLocation();
                         Chunk chunk = loc.getChunk();
-                        Method getTrapByChunkMethod = trapPlugin.getClass().getMethod("getTrapByChunk", Chunk.class);
-                        trapInstance = getTrapByChunkMethod.invoke(trapPlugin, chunk);
+                        String[] locMethodNames = {"getTrapByLocation", "getTrapAt", "getTrapByLoc", "getTrapByChunk"};
+                        for (String mName : locMethodNames) {
+                            try {
+                                Method m = trapPlugin.getClass().getMethod(mName, Location.class);
+                                trapInstance = m.invoke(trapPlugin, loc);
+                                if (trapInstance != null) break;
+                            } catch (Exception e1) {
+                                try {
+                                    Method m = trapPlugin.getClass().getMethod(mName, Chunk.class);
+                                    trapInstance = m.invoke(trapPlugin, chunk);
+                                    if (trapInstance != null) break;
+                                } catch (Exception ignored) {}
+                            }
+                        }
                     }
 
+                    // 4. Eğer hala bulunamadıysa eklentideki tüm trap listesini tarayıp oyuncunun bulunduğu veya sahip olduğu trapi bul
+                    if (trapInstance == null) {
+                        String[] listMethodNames = {"getTraps", "getAllTraps", "getRegisteredTraps"};
+                        for (String mName : listMethodNames) {
+                            try {
+                                Method m = trapPlugin.getClass().getMethod(mName);
+                                Object result = m.invoke(trapPlugin);
+                                if (result instanceof Collection) {
+                                    for (Object t : (Collection<?>) result) {
+                                        // Trap sahibi bu oyuncu mu kontrol et
+                                        try {
+                                            Method ownerM = t.getClass().getMethod("getOwner");
+                                            Object ownerObj = ownerM.invoke(t);
+                                            if (ownerObj != null && (ownerObj.toString().equalsIgnoreCase(player.getName()) || ownerObj.equals(player.getUniqueId()))) {
+                                                trapInstance = t;
+                                                break;
+                                            }
+                                        } catch (Exception ignored) {}
+
+                                        // Veya oyuncu bu trap'in içindeki alanda/chunk'ta mı kontrol et
+                                        try {
+                                            Method locM = t.getClass().getMethod("getLocation");
+                                            Location tLoc = (Location) locM.invoke(t);
+                                            if (tLoc != null && tLoc.getWorld() != null && tLoc.getWorld().equals(player.getWorld()) && tLoc.distanceSquared(player.getLocation()) <= 100) {
+                                                trapInstance = t;
+                                                break;
+                                            }
+                                        } catch (Exception ignored) {}
+                                    }
+                                }
+                                if (trapInstance != null) break;
+                            } catch (Exception ignored) {}
+                        }
+                    }
+
+                    // Eğer trap nesnesi başarıyla yakalandıysa özelliklerini çek
                     if (trapInstance != null) {
-                        Method getOwnerMethod = trapInstance.getClass().getMethod("getOwner");
-                        Method getIdMethod = trapInstance.getClass().getMethod("getId");
-                        Method getHealthMethod = trapInstance.getClass().getMethod("getHealth");
+                        // Sahip ismi
+                        String[] ownerMethods = {"getOwnerName", "getOwner", "getOwnerString", "getOwnerPlayer"};
+                        for (String om : ownerMethods) {
+                            try {
+                                Method m = trapInstance.getClass().getMethod(om);
+                                Object val = m.invoke(trapInstance);
+                                if (val != null) {
+                                    if (val instanceof Player) {
+                                        trapOwner = ((Player) val).getName();
+                                    } else {
+                                        trapOwner = val.toString();
+                                    }
+                                    break;
+                                }
+                            } catch (Exception ignored) {}
+                        }
 
-                        Object ownerObj = getOwnerMethod.invoke(trapInstance);
-                        Object idObj = getIdMethod.invoke(trapInstance);
-                        Object healthObj = getHealthMethod.invoke(trapInstance);
+                        // Trap ID / İsim / Numara
+                        String[] idMethods = {"getId", "getTrapId", "getName", "getIdentifier", "getNumber"};
+                        for (String im : idMethods) {
+                            try {
+                                Method m = trapInstance.getClass().getMethod(im);
+                                Object val = m.invoke(trapInstance);
+                                if (val != null) {
+                                    trapId = val.toString();
+                                    break;
+                                }
+                            } catch (Exception ignored) {}
+                        }
 
-                        if (ownerObj != null) trapOwner = ownerObj.toString();
-                        if (idObj != null) trapId = idObj.toString();
-                        if (healthObj != null) trapHealth = healthObj.toString();
+                        // Trap Canı / Sağlığı
+                        String[] healthMethods = {"getHealth", "getCurrentHealth", "getHp", "getMaxHealth"};
+                        for (String hm : healthMethods) {
+                            try {
+                                Method m = trapInstance.getClass().getMethod(hm);
+                                Object val = m.invoke(trapInstance);
+                                if (val != null) {
+                                    trapHealth = val.toString();
+                                    break;
+                                }
+                            } catch (Exception ignored) {}
+                        }
                     }
                 } catch (Exception ignored) {
                 }
