@@ -17,14 +17,22 @@
     </properties>
 
     <repositories>
+        <!-- PaperMC Deposu -->
         <repository>
             <id>papermc</id>
             <url>https://repo.papermc.io/repository/maven-public/</url>
         </repository>
+        <!-- LuckPerms Deposu -->
         <repository>
             <id>luckperms</id>
             <url>https://repo.lucko.me/</url>
         </repository>
+        <!-- Vault (JitPack) Deposu - Eksik olan budur -->
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+        <!-- Sonatype Deposu -->
         <repository>
             <id>sonatype</id>
             <url>https://oss.sonatype.org/content/groups/public/</url>
