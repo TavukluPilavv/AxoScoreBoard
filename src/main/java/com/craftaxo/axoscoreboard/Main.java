@@ -93,15 +93,22 @@ public final class Main extends JavaPlugin implements Listener {
         return statsConfig.getInt("stats." + player.getUniqueId() + ".deaths", 0);
     }
 
+    private int getStreak(Player player) {
+        return statsConfig.getInt("stats." + player.getUniqueId() + ".streak", 0);
+    }
+
     private void addKill(Player player) {
-        int current = getKills(player);
-        statsConfig.set("stats." + player.getUniqueId() + ".kills", current + 1);
+        int kills = getKills(player);
+        int streak = getStreak(player);
+        statsConfig.set("stats." + player.getUniqueId() + ".kills", kills + 1);
+        statsConfig.set("stats." + player.getUniqueId() + ".streak", streak + 1);
         saveStats();
     }
 
     private void addDeath(Player player) {
-        int current = getDeaths(player);
-        statsConfig.set("stats." + player.getUniqueId() + ".deaths", current + 1);
+        int deaths = getDeaths(player);
+        statsConfig.set("stats." + player.getUniqueId() + ".deaths", deaths + 1);
+        statsConfig.set("stats." + player.getUniqueId() + ".streak", 0); // Ölünce seri sıfırlanır
         saveStats();
     }
 
@@ -147,6 +154,7 @@ public final class Main extends JavaPlugin implements Listener {
 
             int kills = getKills(player);
             int deaths = getDeaths(player);
+            int streak = getStreak(player);
 
             // Para Miktarı Çekme
             String moneyStr = "0.0";
@@ -157,8 +165,9 @@ public final class Main extends JavaPlugin implements Listener {
                 } catch (Exception ignored) {}
             }
 
-            // LuckPerms Rütbe Çekme (Prefixler filtrelendi, sadece saf rütbe kaldı)
+            // LuckPerms Tag ve Rütbe Çekme
             String rank = "Oyuncu";
+            String prefix = "";
             if (luckPermsPlugin != null && luckPermsPlugin.isEnabled()) {
                 try {
                     Object lpProvider = net.luckperms.api.LuckPermsProvider.get();
@@ -174,14 +183,24 @@ public final class Main extends JavaPlugin implements Listener {
                             String group = primaryGroupObj.toString();
                             rank = group.substring(0, 1).toUpperCase() + group.substring(1);
                         }
+
+                        Method getCachedDataMethod = user.getClass().getMethod("getCachedData");
+                        Object cachedData = getCachedDataMethod.invoke(user);
+                        Method getMetaDataMethod = cachedData.getClass().getMethod("getMetaData");
+                        Object metaData = getMetaDataMethod.invoke(cachedData);
+                        Method getPrefixMethod = metaData.getClass().getMethod("getPrefix");
+                        Object prefixObj = getPrefixMethod.invoke(metaData);
+                        if (prefixObj != null) {
+                            prefix = ChatColor.translateAlternateColorCodes('&', prefixObj.toString());
+                        }
                     }
                 } catch (Exception ignored) {}
             }
 
             // --- TRAP BİLGİLERİ ---
-            String trapOwner = "Yok";
-            String trapId = "-";
+            String trapName = "Yok";
             String trapHealth = "-";
+            String trapNo = "-";
 
             if (trapPlugin != null && trapPlugin.isEnabled()) {
                 try {
@@ -255,25 +274,13 @@ public final class Main extends JavaPlugin implements Listener {
                     }
 
                     if (trapInstance != null) {
-                        String[] ownerMethods = {"getOwnerName", "getOwner", "getOwnerString", "getOwnerPlayer"};
-                        for (String om : ownerMethods) {
+                        String[] nameMethods = {"getName", "getTrapName", "getTitle"};
+                        for (String nm : nameMethods) {
                             try {
-                                Method m = trapInstance.getClass().getMethod(om);
+                                Method m = trapInstance.getClass().getMethod(nm);
                                 Object val = m.invoke(trapInstance);
                                 if (val != null) {
-                                    trapOwner = (val instanceof Player) ? ((Player) val).getName() : val.toString();
-                                    break;
-                                }
-                            } catch (Exception ignored) {}
-                        }
-
-                        String[] idMethods = {"getId", "getTrapId", "getName", "getIdentifier", "getNumber"};
-                        for (String im : idMethods) {
-                            try {
-                                Method m = trapInstance.getClass().getMethod(im);
-                                Object val = m.invoke(trapInstance);
-                                if (val != null) {
-                                    trapId = val.toString();
+                                    trapName = val.toString();
                                     break;
                                 }
                             } catch (Exception ignored) {}
@@ -290,21 +297,33 @@ public final class Main extends JavaPlugin implements Listener {
                                 }
                             } catch (Exception ignored) {}
                         }
+
+                        String[] idMethods = {"getId", "getTrapId", "getNumber", "getIdentifier"};
+                        for (String im : idMethods) {
+                            try {
+                                Method m = trapInstance.getClass().getMethod(im);
+                                Object val = m.invoke(trapInstance);
+                                if (val != null) {
+                                    trapNo = val.toString();
+                                    break;
+                                }
+                            } catch (Exception ignored) {}
+                        }
                     }
                 } catch (Exception ignored) {}
             }
 
-            // --- YENİ DÜZENLİ GÖRÜNÜM (İsim gizlendi, sadece rütbe ve temiz başlıklar eklendi) ---
+            // --- İSTEDİĞİN SIRALAMA ---
             String[] newLines = new String[] {
                 ChatColor.DARK_GRAY + "------------------",
+                ChatColor.RED + "İsim: " + ChatColor.WHITE + prefix + player.getName(),
                 ChatColor.RED + "Rütbe: " + ChatColor.WHITE + rank,
-                ChatColor.RED + "Para: " + ChatColor.GREEN + moneyStr + " TL",
-                ChatColor.RED + "Öldürme: " + ChatColor.GREEN + kills,
-                ChatColor.RED + "Ölüm: " + ChatColor.RED + deaths,
-                ChatColor.DARK_GRAY + "==================",
-                ChatColor.RED + "Trap Sahibi: " + ChatColor.WHITE + trapOwner,
-                ChatColor.RED + "Trap ID: " + ChatColor.WHITE + trapId,
+                ChatColor.RED + "Dinar: " + ChatColor.GREEN + moneyStr + " | " + ChatColor.RED + "Seri: " + ChatColor.YELLOW + streak,
+                ChatColor.RED + "Ölüm: " + ChatColor.WHITE + deaths + " | " + ChatColor.RED + "Öldürme: " + ChatColor.WHITE + kills,
+                ChatColor.DARK_GRAY + "--- Trap Bilgileri ---",
+                ChatColor.RED + "Trap Adı: " + ChatColor.WHITE + trapName,
                 ChatColor.RED + "Trap Canı: " + ChatColor.GREEN + trapHealth,
+                ChatColor.RED + "Trap No: " + ChatColor.WHITE + trapNo,
                 ChatColor.YELLOW + "oyna.axocraft.com"
             };
 
@@ -329,4 +348,3 @@ public final class Main extends JavaPlugin implements Listener {
         }
     }
 }
-
