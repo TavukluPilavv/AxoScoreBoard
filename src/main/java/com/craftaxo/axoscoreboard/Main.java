@@ -122,7 +122,7 @@ public final class Main extends JavaPlugin implements Listener {
         if (sm == null) return;
 
         Scoreboard board = sm.getNewScoreboard();
-        Objective objective = board.registerNewObjective("axoScore", Criteria.DUMMY, ChatColor.GOLD + "" + ChatColor.BOLD + "AxoCraft");
+        Objective objective = board.registerNewObjective("axoScore", Criteria.DUMMY, ChatColor.GOLD + "" + ChatColor.BOLD + "AXOCRAFT");
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         player.setScoreboard(board);
     }
@@ -177,7 +177,7 @@ public final class Main extends JavaPlugin implements Listener {
                         }
 
                         Method getCachedDataMethod = user.getClass().getMethod("getCachedData");
-                        Object cachedData = getCachedDataMethod.invoke(user); // DÜZELTİLDİ: getCachedDataMethod olarak çağrıldı
+                        Object cachedData = getCachedDataMethod.invoke(user);
                         Method getMetaDataMethod = cachedData.getClass().getMethod("getMetaData");
                         Object metaData = getMetaDataMethod.invoke(cachedData);
                         Method getPrefixMethod = metaData.getClass().getMethod("getPrefix");
@@ -190,7 +190,7 @@ public final class Main extends JavaPlugin implements Listener {
                 }
             }
 
-            // --- TRAP BİLGİLERİ (Gelişmiş Yansıtma ve Liste Tarama Desteği) ---
+            // --- TRAP BİLGİLERİ (Nerede olursan ol, sahip olduğun veya üyesi olduğun trapi bulur) ---
             String trapOwner = "Yok";
             String trapId = "-";
             String trapHealth = "-";
@@ -237,7 +237,7 @@ public final class Main extends JavaPlugin implements Listener {
                         }
                     }
 
-                    // 4. Eğer hala bulunamadıysa eklentideki tüm trap listesini tarayıp oyuncunun bulunduğu veya sahip olduğu trapi bul
+                    // 4. Eklentideki tüm trapleri tarayarak oyuncunun üyesi veya sahibi olduğu trapi yakala
                     if (trapInstance == null) {
                         String[] listMethodNames = {"getTraps", "getAllTraps", "getRegisteredTraps"};
                         for (String mName : listMethodNames) {
@@ -246,7 +246,7 @@ public final class Main extends JavaPlugin implements Listener {
                                 Object result = m.invoke(trapPlugin);
                                 if (result instanceof Collection) {
                                     for (Object t : (Collection<?>) result) {
-                                        // Trap sahibi bu oyuncu mu kontrol et
+                                        // Trap sahibi bu oyuncu mu?
                                         try {
                                             Method ownerM = t.getClass().getMethod("getOwner");
                                             Object ownerObj = ownerM.invoke(t);
@@ -256,11 +256,11 @@ public final class Main extends JavaPlugin implements Listener {
                                             }
                                         } catch (Exception ignored) {}
 
-                                        // Veya oyuncu bu trap'in içindeki alanda/chunk'ta mı kontrol et
+                                        // Veya oyuncu bu trap'in üyesi mi?
                                         try {
-                                            Method locM = t.getClass().getMethod("getLocation");
-                                            Location tLoc = (Location) locM.invoke(t);
-                                            if (tLoc != null && tLoc.getWorld() != null && tLoc.getWorld().equals(player.getWorld()) && tLoc.distanceSquared(player.getLocation()) <= 100) {
+                                            Method membersM = t.getClass().getMethod("getMembers");
+                                            Object membersObj = membersM.invoke(t);
+                                            if (membersObj instanceof Collection && ((Collection<?>) membersObj).contains(player.getName())) {
                                                 trapInstance = t;
                                                 break;
                                             }
@@ -272,9 +272,8 @@ public final class Main extends JavaPlugin implements Listener {
                         }
                     }
 
-                    // Eğer trap nesnesi başarıyla yakalandıysa özelliklerini çek
+                    // Bulunan trap nesnesinden verileri çek
                     if (trapInstance != null) {
-                        // Sahip ismi
                         String[] ownerMethods = {"getOwnerName", "getOwner", "getOwnerString", "getOwnerPlayer"};
                         for (String om : ownerMethods) {
                             try {
@@ -291,20 +290,27 @@ public final class Main extends JavaPlugin implements Listener {
                             } catch (Exception ignored) {}
                         }
 
-                        // Trap ID / İsim / Numara
                         String[] idMethods = {"getId", "getTrapId", "getName", "getIdentifier", "getNumber"};
                         for (String im : idMethods) {
                             try {
                                 Method m = trapInstance.getClass().getMethod(im);
-                                Object val = m.invoke(trapInstance);
+                                Object val = m.invoke(trimObject(trapInstance)); // Güvenli çağrı
                                 if (val != null) {
                                     trapId = val.toString();
                                     break;
                                 }
-                            } catch (Exception ignored) {}
+                            } catch (Exception ignored) {
+                                try {
+                                    Method m = trapInstance.getClass().getMethod(im);
+                                    Object val = m.invoke(trapInstance);
+                                    if (val != null) {
+                                        trapId = val.toString();
+                                        break;
+                                    }
+                                } catch (Exception ignored2) {}
+                            }
                         }
 
-                        // Trap Canı / Sağlığı
                         String[] healthMethods = {"getHealth", "getCurrentHealth", "getHp", "getMaxHealth"};
                         for (String hm : healthMethods) {
                             try {
@@ -321,40 +327,43 @@ public final class Main extends JavaPlugin implements Listener {
                 }
             }
 
-            // Scoreboard Satırları (Aşağıdan yukarıya doğru)
-            Score line11 = objective.getScore(ChatColor.GRAY + "------------------");
+            // --- SCOREBOARD GÖRÜNÜMÜ (Kalın, Büyük ve 2 Uyumlu Renk: Gold & Yeşil/Beyaz) ---
+            Score line11 = objective.getScore(ChatColor.DARK_GRAY + "------------------");
             line11.setScore(11);
 
-            Score line10 = objective.getScore(ChatColor.YELLOW + "Oyuncu: " + ChatColor.WHITE + prefix + player.getName());
+            Score line10 = objective.getScore(ChatColor.GOLD + "Oyuncu: " + ChatColor.WHITE + prefix + player.getName());
             line10.setScore(10);
 
-            Score line9 = objective.getScore(ChatColor.LIGHT_PURPLE + "Rütbe: " + ChatColor.YELLOW + rank);
+            Score line9 = objective.getScore(ChatColor.GOLD + "Rütbe: " + ChatColor.WHITE + rank);
             line9.setScore(9);
 
             Score line8 = objective.getScore(ChatColor.GOLD + "Para: " + ChatColor.GREEN + moneyStr + " TL");
             line8.setScore(8);
 
-            Score line7 = objective.getScore(ChatColor.RED + "Öldürme: " + ChatColor.GREEN + kills);
+            Score line7 = objective.getScore(ChatColor.GOLD + "Öldürme: " + ChatColor.GREEN + kills);
             line7.setScore(7);
 
-            Score line6 = objective.getScore(ChatColor.RED + "Ölüm: " + ChatColor.DARK_RED + deaths);
+            Score line6 = objective.getScore(ChatColor.GOLD + "Ölüm: " + ChatColor.RED + deaths);
             line6.setScore(6);
 
-            Score line5 = objective.getScore(ChatColor.GRAY + "==================");
+            Score line5 = objective.getScore(ChatColor.DARK_GRAY + "==================");
             line5.setScore(5);
 
-            Score line4 = objective.getScore(ChatColor.AQUA + "Trap Sahibi: " + ChatColor.WHITE + trapOwner);
+            Score line4 = objective.getScore(ChatColor.GOLD + "Trap Sahibi: " + ChatColor.WHITE + trapOwner);
             line4.setScore(4);
 
-            Score line3 = objective.getScore(ChatColor.AQUA + "Trap ID: " + ChatColor.WHITE + trapId);
+            Score line3 = objective.getScore(ChatColor.GOLD + "Trap ID: " + ChatColor.WHITE + trapId);
             line3.setScore(3);
 
-            Score line2 = objective.getScore(ChatColor.GREEN + "Trap Canı: " + ChatColor.WHITE + trapHealth);
+            Score line2 = objective.getScore(ChatColor.GOLD + "Trap Canı: " + ChatColor.GREEN + trapHealth);
             line2.setScore(2);
 
-            Score line1 = objective.getScore(ChatColor.YELLOW + "play.axocraft.com");
+            Score line1 = objective.getScore(ChatColor.YELLOW + "zevoracraft.mcsh.gg");
             line1.setScore(1);
         }
     }
-}
 
+    private Object trimObject(Object obj) {
+        return obj;
+    }
+}
