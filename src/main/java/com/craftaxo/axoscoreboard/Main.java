@@ -32,7 +32,6 @@ public final class Main extends JavaPlugin implements Listener {
     private FileConfiguration statsConfig;
     private static Economy economy = null;
     
-    // Titremeyi (yanıp sönme sorununu) önlemek için eski satırları hafızada tutuyoruz
     private final Map<UUID, String[]> lastLines = new HashMap<>();
 
     @Override
@@ -44,7 +43,6 @@ public final class Main extends JavaPlugin implements Listener {
             getLogger().info("Vault ekonomisi bulunamadi, para kismi devre disi kalacak!");
         }
 
-        // Her 1 saniyede bir scoreboard'ları günceller
         Bukkit.getScheduler().runTaskTimer(this, this::updateScoreboards, 0L, 20L);
         getLogger().info("AxoScoreboard tam özellikli olarak aktif edildi!");
     }
@@ -128,7 +126,6 @@ public final class Main extends JavaPlugin implements Listener {
         if (sm == null) return;
 
         Scoreboard board = sm.getNewScoreboard();
-        // Kalın, büyük ve kırmızı yanıp sönen başlık efekti
         Objective objective = board.registerNewObjective("axoScore", Criteria.DUMMY, ChatColor.RED + "" + ChatColor.BOLD + "AXOCRAFT");
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         player.setScoreboard(board);
@@ -160,9 +157,8 @@ public final class Main extends JavaPlugin implements Listener {
                 } catch (Exception ignored) {}
             }
 
-            // LuckPerms Tag ve Rütbe Çekme
+            // LuckPerms Rütbe Çekme (Prefixler filtrelendi, sadece saf rütbe kaldı)
             String rank = "Oyuncu";
-            String prefix = "";
             if (luckPermsPlugin != null && luckPermsPlugin.isEnabled()) {
                 try {
                     Object lpProvider = net.luckperms.api.LuckPermsProvider.get();
@@ -177,16 +173,6 @@ public final class Main extends JavaPlugin implements Listener {
                         if (primaryGroupObj != null) {
                             String group = primaryGroupObj.toString();
                             rank = group.substring(0, 1).toUpperCase() + group.substring(1);
-                        }
-
-                        Method getCachedDataMethod = user.getClass().getMethod("getCachedData");
-                        Object cachedData = getCachedDataMethod.invoke(user);
-                        Method getMetaDataMethod = cachedData.getClass().getMethod("getMetaData");
-                        Object metaData = getMetaDataMethod.invoke(cachedData);
-                        Method getPrefixMethod = metaData.getClass().getMethod("getPrefix");
-                        Object prefixObj = getPrefixMethod.invoke(metaData);
-                        if (prefixObj != null) {
-                            prefix = ChatColor.translateAlternateColorCodes('&', prefixObj.toString());
                         }
                     }
                 } catch (Exception ignored) {}
@@ -308,10 +294,9 @@ public final class Main extends JavaPlugin implements Listener {
                 } catch (Exception ignored) {}
             }
 
-            // --- YENİ SATIRLAR (Numaralandırma kaldırıldı, titreme önlendi) ---
+            // --- YENİ DÜZENLİ GÖRÜNÜM (İsim gizlendi, sadece rütbe ve temiz başlıklar eklendi) ---
             String[] newLines = new String[] {
                 ChatColor.DARK_GRAY + "------------------",
-                ChatColor.RED + "Oyuncu: " + ChatColor.WHITE + prefix + player.getName(),
                 ChatColor.RED + "Rütbe: " + ChatColor.WHITE + rank,
                 ChatColor.RED + "Para: " + ChatColor.GREEN + moneyStr + " TL",
                 ChatColor.RED + "Öldürme: " + ChatColor.GREEN + kills,
@@ -323,20 +308,14 @@ public final class Main extends JavaPlugin implements Listener {
                 ChatColor.YELLOW + "oyna.axocraft.com"
             };
 
-            String[] oldLines = lastLines.get(player.getUniqueId());
-
-            // Eski girdileri temizle
             for (String entry : board.getEntries()) {
                 board.resetScores(entry);
             }
 
-            // Satırları scoreboard'a tekrar yükle
             for (int i = 0; i < newLines.length; i++) {
                 int scoreVal = newLines.length - i;
                 String lineText = newLines[i];
                 
-                // Minecraft scoreboard aynı metnin iki kez eklenmesine izin vermez,
-                // bu yüzden satırlar aynıysa bile çakışmayı önlemek için renkli boşluklar ekliyoruz
                 for (String existingEntry : board.getEntries()) {
                     if (existingEntry.equals(lineText)) {
                         lineText += ChatColor.values()[i % ChatColor.values().length] + "" + ChatColor.RESET;
