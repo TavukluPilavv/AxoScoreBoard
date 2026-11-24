@@ -47,7 +47,6 @@ public final class Main extends JavaPlugin implements Listener {
             getLogger().info("Vault ekonomisi bulunamadi, para kismi devre disi kalacak!");
         }
 
-        // Her 1 saniyede bir (20 tick) tüm scoreboard'ları ve saat/animasyonları günceller
         Bukkit.getScheduler().runTaskTimer(this, this::updateScoreboards, 0L, 20L);
         getLogger().info("AxoScoreboard tam özellikli olarak aktif edildi!");
     }
@@ -141,7 +140,6 @@ public final class Main extends JavaPlugin implements Listener {
         Plugin trapPlugin = Bukkit.getPluginManager().getPlugin("TrapPlugin");
         Plugin luckPermsPlugin = Bukkit.getPluginManager().getPlugin("LuckPerms");
 
-        // Yanıp sönen renkli başlık efekti (Gold <-> Yellow <-> White arası geçiş)
         String[] titles = {
             ChatColor.GOLD + "" + ChatColor.BOLD + "◆ AXOCRAFT ◆",
             ChatColor.YELLOW + "" + ChatColor.BOLD + "◇ AXOCRAFT ◇",
@@ -149,7 +147,6 @@ public final class Main extends JavaPlugin implements Listener {
         };
         String currentTitle = titles[animationFrame % titles.length];
 
-        // Türkiye saati ve tarihi (GG/AA/YYYY SS:MM:SS)
         ZonedDateTime trTime = ZonedDateTime.now(ZoneId.of("Europe/Istanbul"));
         String dateStr = trTime.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss"));
 
@@ -165,13 +162,11 @@ public final class Main extends JavaPlugin implements Listener {
             Objective objective = board.getObjective("axoScore");
             if (objective == null) continue;
 
-            // Başlığı dinamik olarak güncelle (yanıp sönme efekti için)
             objective.setDisplayName(currentTitle);
 
             int kills = getKills(player);
             int deaths = getDeaths(player);
 
-            // Para Miktarı Çekme
             String moneyStr = "0";
             if (economy != null) {
                 try {
@@ -180,7 +175,6 @@ public final class Main extends JavaPlugin implements Listener {
                 } catch (Exception ignored) {}
             }
 
-            // LuckPerms Rütbe ve İsim Çekme
             String rankAndPrefix = "Oyuncu";
             if (luckPermsPlugin != null && luckPermsPlugin.isEnabled()) {
                 try {
@@ -192,8 +186,7 @@ public final class Main extends JavaPlugin implements Listener {
 
                     if (user != null) {
                         Method getCachedDataMethod = user.getClass().getMethod("getCachedData");
-                        Object cachedData = getUserMethod.invoke(user); // Güvenli çağrı yerine cachedData
-                        // MetaData üzerinden prefix ve grup çekme
+                        Object cachedData = getCachedDataMethod.invoke(user);
                         Method getMetaDataMethod = cachedData.getClass().getMethod("getMetaData");
                         Object metaData = getMetaDataMethod.invoke(cachedData);
                         Method getPrefixMethod = metaData.getClass().getMethod("getPrefix");
@@ -215,7 +208,6 @@ public final class Main extends JavaPlugin implements Listener {
                 rankAndPrefix = player.getName();
             }
 
-            // --- TRAP BİLGİLERİ (TrapPlugin Entegrasyonu) ---
             String trapOwner = "Yok";
             String trapHealth = "-";
             String trapId = "-";
@@ -224,7 +216,6 @@ public final class Main extends JavaPlugin implements Listener {
                 try {
                     Object trapInstance = null;
 
-                    // Oyuncunun sahip olduğu veya üyesi olduğu trap nesnesini bulma
                     String[] listMethodNames = {"getTraps", "getAllTraps", "getRegisteredTrabs", "getPluginTraps"};
                     for (String mName : listMethodNames) {
                         try {
@@ -232,7 +223,6 @@ public final class Main extends JavaPlugin implements Listener {
                             Object result = m.invoke(trapPlugin);
                             if (result instanceof Collection) {
                                 for (Object t : (Collection<?>) result) {
-                                    // Sahibi mi?
                                     try {
                                         Method ownerM = t.getClass().getMethod("getOwner");
                                         Object ownerObj = ownerM.invoke(t);
@@ -242,7 +232,6 @@ public final class Main extends JavaPlugin implements Listener {
                                         }
                                     } catch (Exception ignored) {}
 
-                                    // Davet edilen / Üyesi olan mi?
                                     try {
                                         Method membersM = t.getClass().getMethod("getMembers");
                                         Object membersObj = membersM.invoke(t);
@@ -257,7 +246,6 @@ public final class Main extends JavaPlugin implements Listener {
                         } catch (Exception ignored) {}
                     }
 
-                    // Eğer koleksiyonda bulunamadıysa lokasyon/chunk bazlı ara
                     if (trapInstance == null) {
                         Location loc = player.getLocation();
                         Chunk chunk = loc.getChunk();
@@ -277,9 +265,7 @@ public final class Main extends JavaPlugin implements Listener {
                         }
                     }
 
-                    // Bulunan trap objesinden verileri çek
                     if (trapInstance != null) {
-                        // Trap Sahibi
                         String[] ownerMethods = {"getOwnerName", "getOwner", "getOwnerString"};
                         for (String om : ownerMethods) {
                             try {
@@ -292,7 +278,6 @@ public final class Main extends JavaPlugin implements Listener {
                             } catch (Exception ignored) {}
                         }
 
-                        // Trap Canı
                         String[] healthMethods = {"getHealth", "getCurrentHealth", "getHp", "getMaxHealth"};
                         for (String hm : healthMethods) {
                             try {
@@ -305,7 +290,6 @@ public final class Main extends JavaPlugin implements Listener {
                             } catch (Exception ignored) {}
                         }
 
-                        // Trap ID / No
                         String[] idMethods = {"getId", "getTrapId", "getNumber", "getIdentifier"};
                         for (String im : idMethods) {
                             try {
@@ -321,22 +305,21 @@ public final class Main extends JavaPlugin implements Listener {
                 } catch (Exception ignored) {}
             }
 
-            // --- SCOREBOARD SATIRLARI (İstediğin sıra, simgeler ve renkler) ---
             String[] newLines = new String[] {
                 ChatColor.GRAY + dateStr,
-                ChatColor.WHITE + "", // Boşluk
+                ChatColor.WHITE + "",
                 ChatColor.GREEN + "» SEN: " + ChatColor.WHITE + rankAndPrefix,
                 ChatColor.GREEN + "💰 ALTIN: " + ChatColor.GREEN + moneyStr,
                 ChatColor.GREEN + "⚔ ÖLDÜRME: " + ChatColor.GREEN + kills,
                 ChatColor.RED + "☠ ÖLÜM: " + ChatColor.RED + deaths,
-                ChatColor.WHITE + " ", // Boşluk
+                ChatColor.WHITE + " ",
                 ChatColor.GOLD + "⚡ TRAP CANI: " + ChatColor.WHITE + trapHealth,
                 ChatColor.GOLD + "🔑 TRAP İD: " + ChatColor.WHITE + trapId,
                 ChatColor.GOLD + "👑 TRAP SAHİBİ: " + ChatColor.WHITE + trapOwner,
-                ChatColor.WHITE + "  ", // Boşluk
+                ChatColor.WHITE + "  ",
                 ChatColor.AQUA + "🖥 SUNUCU: " + ChatColor.WHITE + "TrapPvP",
                 ChatColor.AQUA + "👥 ÇEVRİM İÇİ: " + ChatColor.WHITE + onlinePlayers,
-                ChatColor.WHITE + "   ", // Boşluk
+                ChatColor.WHITE + "   ",
                 ChatColor.YELLOW + "axocraft705.mcsh.io"
             };
 
@@ -346,15 +329,15 @@ public final class Main extends JavaPlugin implements Listener {
 
             for (int i = 0; i < newLines.length; i++) {
                 int scoreVal = newLines.length - i;
-                String lineText = newLines.getLine(i) // Güvenli atama için aşağıda düzeltildi
+                String lineText = newLines[i];
                 
                 for (String existingEntry : board.getEntries()) {
-                    if (existingEntry.equals(newLines[i])) {
-                        newLines[i] += ChatColor.values()[i % ChatColor.values().length] + "" + ChatColor.RESET;
+                    if (existingEntry.equals(lineText)) {
+                        lineText += ChatColor.values()[i % ChatColor.values().length] + "" + ChatColor.RESET;
                     }
                 }
 
-                objective.getScore(newLines[i]).setScore(scoreVal);
+                objective.getScore(lineText).setScore(scoreVal);
             }
 
             lastLines.put(player.getUniqueId(), newLines);
