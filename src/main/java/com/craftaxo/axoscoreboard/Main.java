@@ -141,9 +141,9 @@ public final class Main extends JavaPlugin implements Listener {
         Plugin luckPermsPlugin = Bukkit.getPluginManager().getPlugin("LuckPerms");
 
         String[] titles = {
-            ChatColor.GOLD + "" + ChatColor.BOLD + "◆ AXOCRAFT ◆",
-            ChatColor.YELLOW + "" + ChatColor.BOLD + "◇ AXOCRAFT ◇",
-            ChatColor.WHITE + "" + ChatColor.BOLD + "◆ AXOCRAFT ◆"
+            ChatColor.GOLD + "" + ChatColor.BOLD + "◆ LERA CRAFT ◆",
+            ChatColor.YELLOW + "" + ChatColor.BOLD + "◇ LERA CRAFT ◇",
+            ChatColor.WHITE + "" + ChatColor.BOLD + "◆ LERA CRAFT ◆"
         };
         String currentTitle = titles[animationFrame % titles.length];
 
@@ -175,7 +175,7 @@ public final class Main extends JavaPlugin implements Listener {
                 } catch (Exception ignored) {}
             }
 
-            String tagAndName = ChatColor.WHITE + player.getName();
+            String coloredNameAndTag = ChatColor.WHITE + player.getName();
             if (luckPermsPlugin != null && luckPermsPlugin.isEnabled()) {
                 try {
                     Object lpProvider = net.luckperms.api.LuckPermsProvider.get();
@@ -193,12 +193,14 @@ public final class Main extends JavaPlugin implements Listener {
                         Object prefixObj = getPrefixMethod.invoke(metaData);
 
                         String prefix = (prefixObj != null) ? ChatColor.translateAlternateColorCodes('&', prefixObj.toString()) : "";
-                        tagAndName = prefix + " " + ChatColor.WHITE + player.getName();
+                        coloredNameAndTag = prefix + " " + prefix + player.getName();
                     }
                 } catch (Exception ignored) {}
+            } else {
+                coloredNameAndTag = ChatColor.GREEN + player.getName();
             }
 
-            String trapOwner = "Yok";
+            String trapOwner = "yok";
             String trapHealth = "-";
             String trapId = "-";
 
@@ -295,20 +297,21 @@ public final class Main extends JavaPlugin implements Listener {
                 } catch (Exception ignored) {}
             }
 
+            // --- İSTEDİĞİN ÖZEL RENKLER VE ÖZEL HARF GEÇİŞLERİ ---
             String[] newLines = new String[] {
                 ChatColor.GRAY + dateStr,
                 ChatColor.WHITE + "",
-                ChatColor.GREEN + "» SEN: " + tagAndName,
-                ChatColor.WHITE + "ALTIN: " + ChatColor.GREEN + moneyStr,
-                ChatColor.WHITE + "ÖLDÜRME: " + ChatColor.GREEN + kills,
-                ChatColor.WHITE + "ÖLÜM: " + ChatColor.RED + deaths,
+                "§x§5§4§D§A§F§4s§x§5§4§9§C§D§5e§x§5§4§5§E§B§6n§x§5§4§5§E§B§6: " + coloredNameAndTag,
+                "§x§C§E§E§A§1§7a§x§C§E§E§2§1§9l§x§C§E§D§A§1§Bı§x§C§E§D§1§1§Cτ§x§C§E§C§9§1§Eın: " + ChatColor.GREEN + moneyStr,
+                "§x§E§A§1§7§1§7ö§x§E§5§1§8§2§6l§x§E§1§1§9§3§4d§x§D§C§1§B§4§3ü§x§D§7§1§C§5§2r§x§D§3§1§D§6§0m§x§C§E§1§E§6§Fə: " + ChatColor.GREEN + kills,
+                "§x§7§F§F§C§5§Cö§x§5§F§B§D§8§2l§x§3§E§7§E§A§8m§x§1§E§3§F§C§Eə: " + ChatColor.RED + deaths,
                 ChatColor.WHITE + " ",
-                ChatColor.WHITE + "TRAP CANI: " + ChatColor.YELLOW + trapHealth,
-                ChatColor.WHITE + "TRAP ID: " + ChatColor.YELLOW + trapId,
-                ChatColor.WHITE + "TRAP SAHİBİ: " + ChatColor.YELLOW + trapOwner,
+                ChatColor.WHITE + "trap canı: " + ChatColor.BLUE + trapHealth,
+                ChatColor.WHITE + "trap id: " + ChatColor.BLUE + trapId,
+                ChatColor.WHITE + "trap sahibi: " + ChatColor.BLUE + trapOwner,
                 ChatColor.WHITE + "  ",
-                ChatColor.WHITE + "SUNUCU: " + ChatColor.AQUA + "TrapPvP",
-                ChatColor.WHITE + "ÇEVRİM İÇİ: " + ChatColor.AQUA + onlinePlayers,
+                ChatColor.WHITE + "sunucu: " + ChatColor.GREEN + "trappvp",
+                ChatColor.WHITE + "çevrim içi: " + ChatColor.BLUE + onlinePlayers,
                 ChatColor.WHITE + "   ",
                 ChatColor.YELLOW + "axocraft705.mcsh.io"
             };
