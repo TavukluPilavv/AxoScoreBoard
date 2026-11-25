@@ -140,7 +140,6 @@ public final class Main extends JavaPlugin implements Listener {
         Plugin trapPlugin = Bukkit.getPluginManager().getPlugin("TrapPlugin");
         Plugin luckPermsPlugin = Bukkit.getPluginManager().getPlugin("LuckPerms");
 
-        // İstediğin mavi/turkuaz tonlarında parlayan başlık animasyonu
         String[] titles = {
             "§x§5§B§F§5§D§0A§x§4§B§C§E§D§6X§x§3§C§A§7§D§BO §x§2§C§7§F§E§1C§x§1§C§5§8§E§6R§x§2§4§6§C§E§3A§x§3§4§9§3§D§EF§x§5§3§E§1§D§3T",
             "§x§3§C§A§7§D§B◇ §x§5§B§F§5§D§0AXO §x§2§C§7§F§E§1CRAFT §x§3§C§A§7§D§B◇",
@@ -298,12 +297,12 @@ public final class Main extends JavaPlugin implements Listener {
                 } catch (Exception ignored) {}
             }
 
-            // İstediğin özel renkler ve harf geçişleri
+            // İstediğin özel renkli etiketler ve harf geçişleri
             String[] newLines = new String[] {
                 ChatColor.GRAY + dateStr,
                 ChatColor.WHITE + "",
-                "§x§F§F§F§F§F§Fs§x§F§F§F§F§F§Fe§x§F§F§F§F§F§Fn: " + coloredNameAndTag,
-                "§x§F§F§F§F§F§Fp§x§F§F§F§F§F§Fa§x§F§F§F§F§F§Fr§x§F§F§F§F§F§Fa: " + ChatColor.GREEN + moneyStr,
+                "§x§F§F§F§F§F§Fꜱ§x§F§F§F§F§F§Fᴇ§x§F§F§F§F§F§Fɴ: " + coloredNameAndTag,
+                "§x§F§C§D§0§5§Cᴘ§x§F§5§D§2§4§7ᴀ§x§E§D§D§4§3§1ʀ§x§E§6§D§6§1§Cᴀ: " + ChatColor.GREEN + moneyStr,
                 "§x§F§5§6§B§5§BÖ§x§F§3§5§E§5§1ʟ§x§F§0§5§1§4§6ᴅ§x§E§E§4§4§3§Cü§x§E§B§3§6§3§1ʀ§x§E§9§2§9§2§7ᴍ§x§E§6§1§C§1§Cᴇ: " + ChatColor.GREEN + kills,
                 "§x§F§5§6§B§5§BÖ§x§F§0§5§1§4§6ʟ§x§E§B§3§6§3§1ᴍ§x§E§6§1§C§1§Cᴇ: " + ChatColor.RED + deaths,
                 ChatColor.WHITE + " ",
@@ -331,10 +330,7 @@ public final class Main extends JavaPlugin implements Listener {
                     }
                 }
 
-                Score score = objective.getScore(lineText);
-                score.setScore(scoreVal);
-                // Sağdaki sayıları (skorları) tamamen gizlemek için PaperMC numberFormat kullanıyoruz
-                score.numberFormat(net.kyori.adventure.scoreboard.NumberFormat.blank());
+                objective.getScore(lineText).setScore(scoreVal);
             }
 
             lastLines.put(player.getUniqueId(), newLines);
