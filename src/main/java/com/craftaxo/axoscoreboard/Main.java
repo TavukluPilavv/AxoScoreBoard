@@ -175,7 +175,7 @@ public final class Main extends JavaPlugin implements Listener {
                 } catch (Exception ignored) {}
             }
 
-            String rankAndPrefix = "Oyuncu";
+            String tagAndName = ChatColor.WHITE + player.getName();
             if (luckPermsPlugin != null && luckPermsPlugin.isEnabled()) {
                 try {
                     Object lpProvider = net.luckperms.api.LuckPermsProvider.get();
@@ -191,21 +191,11 @@ public final class Main extends JavaPlugin implements Listener {
                         Object metaData = getMetaDataMethod.invoke(cachedData);
                         Method getPrefixMethod = metaData.getClass().getMethod("getPrefix");
                         Object prefixObj = getPrefixMethod.invoke(metaData);
-                        
-                        Method getPrimaryGroupMethod = user.getClass().getMethod("getPrimaryGroup");
-                        Object primaryGroupObj = getPrimaryGroupMethod.invoke(user);
 
                         String prefix = (prefixObj != null) ? ChatColor.translateAlternateColorCodes('&', prefixObj.toString()) : "";
-                        String group = (primaryGroupObj != null) ? primaryGroupObj.toString() : "Oyuncu";
-                        group = group.substring(0, 1).toUpperCase() + group.substring(1);
-
-                        rankAndPrefix = prefix + " " + player.getName() + " " + ChatColor.GRAY + "[" + group + "]";
+                        tagAndName = prefix + " " + ChatColor.WHITE + player.getName();
                     }
-                } catch (Exception e) {
-                    rankAndPrefix = player.getName();
-                }
-            } else {
-                rankAndPrefix = player.getName();
+                } catch (Exception ignored) {}
             }
 
             String trapOwner = "Yok";
@@ -308,17 +298,17 @@ public final class Main extends JavaPlugin implements Listener {
             String[] newLines = new String[] {
                 ChatColor.GRAY + dateStr,
                 ChatColor.WHITE + "",
-                ChatColor.GREEN + "» SEN: " + ChatColor.WHITE + rankAndPrefix,
-                ChatColor.GREEN + "💰 ALTIN: " + ChatColor.GREEN + moneyStr,
-                ChatColor.GREEN + "⚔ ÖLDÜRME: " + ChatColor.GREEN + kills,
-                ChatColor.RED + "☠ ÖLÜM: " + ChatColor.RED + deaths,
+                ChatColor.GREEN + "» SEN: " + tagAndName,
+                ChatColor.WHITE + "ALTIN: " + ChatColor.GREEN + moneyStr,
+                ChatColor.WHITE + "ÖLDÜRME: " + ChatColor.GREEN + kills,
+                ChatColor.WHITE + "ÖLÜM: " + ChatColor.RED + deaths,
                 ChatColor.WHITE + " ",
-                ChatColor.GOLD + "⚡ TRAP CANI: " + ChatColor.WHITE + trapHealth,
-                ChatColor.GOLD + "🔑 TRAP İD: " + ChatColor.WHITE + trapId,
-                ChatColor.GOLD + "👑 TRAP SAHİBİ: " + ChatColor.WHITE + trapOwner,
+                ChatColor.WHITE + "TRAP CANI: " + ChatColor.YELLOW + trapHealth,
+                ChatColor.WHITE + "TRAP ID: " + ChatColor.YELLOW + trapId,
+                ChatColor.WHITE + "TRAP SAHİBİ: " + ChatColor.YELLOW + trapOwner,
                 ChatColor.WHITE + "  ",
-                ChatColor.AQUA + "🖥 SUNUCU: " + ChatColor.WHITE + "TrapPvP",
-                ChatColor.AQUA + "👥 ÇEVRİM İÇİ: " + ChatColor.WHITE + onlinePlayers,
+                ChatColor.WHITE + "SUNUCU: " + ChatColor.AQUA + "TrapPvP",
+                ChatColor.WHITE + "ÇEVRİM İÇİ: " + ChatColor.AQUA + onlinePlayers,
                 ChatColor.WHITE + "   ",
                 ChatColor.YELLOW + "axocraft705.mcsh.io"
             };
