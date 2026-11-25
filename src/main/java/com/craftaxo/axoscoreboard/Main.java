@@ -130,7 +130,7 @@ public final class Main extends JavaPlugin implements Listener {
         if (sm == null) return;
 
         Scoreboard board = sm.getNewScoreboard();
-        Objective objective = board.registerNewObjective("axoScore", Criteria.DUMMY, ChatColor.GOLD + "" + ChatColor.BOLD + "AXOCRAFT");
+        Objective objective = board.registerNewObjective("axoScore", Criteria.DUMMY, "§x§5§B§F§5§D§0a§x§5§3§E§1§D§3x§x§4§B§C§E§D§6o §x§3§C§A§7§D§Bc§x§3§4§9§3§D§Eʀ§x§2§C§7§F§E§1a§x§2§4§6§C§E§3ꜰ§x§1§C§5§8§E§6ᴛ");
         objective.setDisplaySlot(DisplaySlot.SIDEBAR);
         player.setScoreboard(board);
     }
@@ -140,10 +140,11 @@ public final class Main extends JavaPlugin implements Listener {
         Plugin trapPlugin = Bukkit.getPluginManager().getPlugin("TrapPlugin");
         Plugin luckPermsPlugin = Bukkit.getPluginManager().getPlugin("LuckPerms");
 
+        // İstediğin mavi/turkuaz tonlarında parlayan başlık animasyonu
         String[] titles = {
-            ChatColor.GOLD + "" + ChatColor.BOLD + "◆ LERA CRAFT ◆",
-            ChatColor.YELLOW + "" + ChatColor.BOLD + "◇ LERA CRAFT ◇",
-            ChatColor.WHITE + "" + ChatColor.BOLD + "◆ LERA CRAFT ◆"
+            "§x§5§B§F§5§D§0A§x§4§B§C§E§D§6X§x§3§C§A§7§D§BO §x§2§C§7§F§E§1C§x§1§C§5§8§E§6R§x§2§4§6§C§E§3A§x§3§4§9§3§D§EF§x§5§3§E§1§D§3T",
+            "§x§3§C§A§7§D§B◇ §x§5§B§F§5§D§0AXO §x§2§C§7§F§E§1CRAFT §x§3§C§A§7§D§B◇",
+            "§x§1§C§5§8§E§6◆ §x§2§4§6§C§E§3AXO CRAFT §x§1§C§5§8§E§6◆"
         };
         String currentTitle = titles[animationFrame % titles.length];
 
@@ -193,7 +194,7 @@ public final class Main extends JavaPlugin implements Listener {
                         Object prefixObj = getPrefixMethod.invoke(metaData);
 
                         String prefix = (prefixObj != null) ? ChatColor.translateAlternateColorCodes('&', prefixObj.toString()) : "";
-                        coloredNameAndTag = prefix + " " + prefix + player.getName();
+                        coloredNameAndTag = prefix + " " + player.getName();
                     }
                 } catch (Exception ignored) {}
             } else {
@@ -297,14 +298,14 @@ public final class Main extends JavaPlugin implements Listener {
                 } catch (Exception ignored) {}
             }
 
-            // --- İSTEDİĞİN ÖZEL RENKLER VE ÖZEL HARF GEÇİŞLERİ ---
+            // İstediğin özel renkler ve harf geçişleri
             String[] newLines = new String[] {
                 ChatColor.GRAY + dateStr,
                 ChatColor.WHITE + "",
-                "§x§5§4§D§A§F§4s§x§5§4§9§C§D§5e§x§5§4§5§E§B§6n§x§5§4§5§E§B§6: " + coloredNameAndTag,
-                "§x§C§E§E§A§1§7a§x§C§E§E§2§1§9l§x§C§E§D§A§1§Bı§x§C§E§D§1§1§Cτ§x§C§E§C§9§1§Eın: " + ChatColor.GREEN + moneyStr,
-                "§x§E§A§1§7§1§7ö§x§E§5§1§8§2§6l§x§E§1§1§9§3§4d§x§D§C§1§B§4§3ü§x§D§7§1§C§5§2r§x§D§3§1§D§6§0m§x§C§E§1§E§6§Fə: " + ChatColor.GREEN + kills,
-                "§x§7§F§F§C§5§Cö§x§5§F§B§D§8§2l§x§3§E§7§E§A§8m§x§1§E§3§F§C§Eə: " + ChatColor.RED + deaths,
+                "§x§F§F§F§F§F§Fs§x§F§F§F§F§F§Fe§x§F§F§F§F§F§Fn: " + coloredNameAndTag,
+                "§x§F§F§F§F§F§Fp§x§F§F§F§F§F§Fa§x§F§F§F§F§F§Fr§x§F§F§F§F§F§Fa: " + ChatColor.GREEN + moneyStr,
+                "§x§F§5§6§B§5§BÖ§x§F§3§5§E§5§1ʟ§x§F§0§5§1§4§6ᴅ§x§E§E§4§4§3§Cü§x§E§B§3§6§3§1ʀ§x§E§9§2§9§2§7ᴍ§x§E§6§1§C§1§Cᴇ: " + ChatColor.GREEN + kills,
+                "§x§F§5§6§B§5§BÖ§x§F§0§5§1§4§6ʟ§x§E§B§3§6§3§1ᴍ§x§E§6§1§C§1§Cᴇ: " + ChatColor.RED + deaths,
                 ChatColor.WHITE + " ",
                 ChatColor.WHITE + "trap canı: " + ChatColor.BLUE + trapHealth,
                 ChatColor.WHITE + "trap id: " + ChatColor.BLUE + trapId,
@@ -330,7 +331,10 @@ public final class Main extends JavaPlugin implements Listener {
                     }
                 }
 
-                objective.getScore(lineText).setScore(scoreVal);
+                Score score = objective.getScore(lineText);
+                score.setScore(scoreVal);
+                // Sağdaki sayıları (skorları) tamamen gizlemek için PaperMC numberFormat kullanıyoruz
+                score.numberFormat(net.kyori.adventure.scoreboard.NumberFormat.blank());
             }
 
             lastLines.put(player.getUniqueId(), newLines);
