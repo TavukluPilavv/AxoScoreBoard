@@ -307,23 +307,23 @@ public final class Main extends JavaPlugin implements Listener {
             java.util.List<String> lineList = new java.util.ArrayList<>();
             lineList.add(ChatColor.GRAY + dateStr);
             lineList.add(ChatColor.WHITE + "");
-            lineList.add("&#FFFFFFꜱᴇɴ: " + coloredNameAndTag);
-            lineList.add("&#F8D913ᴘ&#F0BD18ᴀ&#E9A01Dʀ&#E18422ᴀ: " + ChatColor.GREEN + moneyStr);
-            lineList.add("&#F56B5BÖ&#F35E51ʟ&#F05146ᴅ&#EE443Cü§x§E§B§3§6§3§1ʀ§x§E§9§2§9§2§7ᴍ§x§E§6§1§C§1§Cᴇ: " + ChatColor.GREEN + kills);
-            lineList.add("&#F56B5BÖ§x§F§0§5§1§4§6ʟ§x§E§B§3§6§3§1ᴍ§x§E§6§1§C§1§Cᴇ: " + ChatColor.RED + deaths);
+            lineList.add("✏️ ꜱᴇɴ: " + coloredNameAndTag);
+            lineList.add("💰 &eᴘᴀʀᴀ: " + ChatColor.GREEN + moneyStr);
+            lineList.add("⚔ &4Öʟᴅüʀᴍᴇ: " + ChatColor.GREEN + kills);
+            lineList.add("💀 &cÖʟᴍᴇ: " + ChatColor.RED + deaths);
             
             if (hasActiveTrap) {
                 lineList.add(ChatColor.WHITE + " ");
-                lineList.add(ChatColor.WHITE + "&#FFFFFFᴛʀᴀᴘ ᴄᴀɴı: " + ChatColor.BLUE + trapHealth);
-                lineList.add(ChatColor.WHITE + "&#FFFFFFᴛʀᴀᴘ ıᴅ: " + ChatColor.BLUE + trapId);
-                lineList.add(ChatColor.WHITE + "&#FFFFFFᴛʀᴀᴘ ꜱᴀʜɪʙɪ: " + ChatColor.BLUE + trapOwner);
+                lineList.add(ChatColor.WHITE + "❤ ᴛʀᴀᴘ ᴄᴀɴı: " + ChatColor.BLUE + trapHealth);
+                lineList.add(ChatColor.WHITE + "🆔 ᴛʀᴀᴘ ıᴅ: " + ChatColor.BLUE + trapId);
+                lineList.add(ChatColor.WHITE + "👑 ᴛʀᴀᴘ ꜱᴀʜɪʙɪ: " + ChatColor.BLUE + trapOwner);
             }
 
             lineList.add(ChatColor.WHITE + "  ");
-            lineList.add(ChatColor.WHITE + "&#FFFFFFꜱᴜɴᴜᴄᴜ: " + ChatColor.GREEN + "trappvp");
-            lineList.add(ChatColor.WHITE + "Çᴇᴠʀɪᴍ ɪçɪ: " + ChatColor.BLUE + onlinePlayers);
+            lineList.add(ChatColor.WHITE + "🖥 ꜱᴜɴᴜᴄᴜ: " + ChatColor.GREEN + "trappvp");
+            lineList.add(ChatColor.WHITE + "🟢 Çᴇᴠʀɪᴍ ɪçɪ: " + ChatColor.BLUE + onlinePlayers);
             lineList.add(ChatColor.WHITE + "   ");
-            lineList.add(ChatColor.YELLOW + "&#1C4CE1ᴀ&#2652E0x&#2F59DFᴏ&#395FDEᴄ&#4365DCʀ&#4C6BDBᴀ&#5672DAꜰ&#6078D9ᴛ&#697ED8.&#7384D7ᴍ&#7D8BD6ᴄ&#8691D5ꜱ&#9097D3ʜ&#9A9DD2.&#A3A4D1ɪ&#ADAAD0ᴏ");
+            lineList.add(ChatColor.BLUE + "ᴀxᴏᴄʀᴀꜰᴛ.ᴍᴄꜱʜ.ɪᴏ");
 
             String[] newLines = lineList.toArray(new String[0]);
 
