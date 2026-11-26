@@ -200,64 +200,70 @@ public final class Main extends JavaPlugin implements Listener {
                 coloredNameAndTag = ChatColor.GREEN + player.getName();
             }
 
+            // Trap Değişkenleri
             String trapOwner = "yok";
             String trapHealth = "-";
             String trapId = "-";
+            boolean hasActiveTrap = false;
 
             if (trapPlugin != null && trapPlugin.isEnabled()) {
                 try {
                     Object trapInstance = null;
 
-                    String[] listMethodNames = {"getTraps", "getAllTraps", "getRegisteredTrabs", "getPluginTraps"};
-                    for (String mName : listMethodNames) {
+                    // 1. Oyuncunun bulunduğu chunk veya lokasyon üzerindeki trapi bul
+                    Location loc = player.getLocation();
+                    Chunk chunk = loc.getChunk();
+                    String[] locMethodNames = {"getTrapByLocation", "getTrapAt", "getTrapByChunk", "getTrap"};
+                    for (String mName : locMethodNames) {
                         try {
-                            Method m = trapPlugin.getClass().getMethod(mName);
-                            Object result = m.invoke(trapPlugin);
-                            if (result instanceof Collection) {
-                                for (Object t : (Collection<?>) result) {
-                                    try {
-                                        Method ownerM = t.getClass().getMethod("getOwner");
-                                        Object ownerObj = ownerM.invoke(t);
-                                        if (ownerObj != null && (ownerObj.toString().equalsIgnoreCase(player.getName()) || ownerObj.equals(player.getUniqueId()))) {
-                                            trapInstance = t;
-                                            break;
-                                        }
-                                    } catch (Exception ignored) {}
-
-                                    try {
-                                        Method membersM = t.getClass().getMethod("getMembers");
-                                        Object membersObj = membersM.invoke(t);
-                                        if (membersObj instanceof Collection && ((Collection<?>) membersObj).contains(player.getName())) {
-                                            trapInstance = t;
-                                            break;
-                                        }
-                                    } catch (Exception ignored) {}
-                                }
-                            }
+                            Method m = trapPlugin.getClass().getMethod(mName, Location.class);
+                            trapInstance = m.invoke(trapPlugin, loc);
                             if (trapInstance != null) break;
-                        } catch (Exception ignored) {}
+                        } catch (Exception e1) {
+                            try {
+                                Method m = trapPlugin.getClass().getMethod(mName, Chunk.class);
+                                trapInstance = m.invoke(trapPlugin, chunk);
+                                if (trapInstance != null) break;
+                            } catch (Exception ignored) {}
+                        }
                     }
 
+                    // 2. Bulunmadıysa kayıtlı tüm trapleri tarayarak sahip veya üye olduğu trapi yakala
                     if (trapInstance == null) {
-                        Location loc = player.getLocation();
-                        Chunk chunk = loc.getChunk();
-                        String[] locMethodNames = {"getTrapByLocation", "getTrapAt", "getTrapByChunk"};
-                        for (String mName : locMethodNames) {
+                        String[] listMethodNames = {"getTraps", "getAllTraps", "getRegisteredTrabs", "getPluginTraps"};
+                        for (String mName : listMethodNames) {
                             try {
-                                Method m = trapPlugin.getClass().getMethod(mName, Location.class);
-                                trapInstance = m.invoke(trapPlugin, loc);
+                                Method m = trapPlugin.getClass().getMethod(mName);
+                                Object result = m.invoke(trapPlugin);
+                                if (result instanceof Collection) {
+                                    for (Object t : (Collection<?>) result) {
+                                        try {
+                                            Method ownerM = t.getClass().getMethod("getOwner");
+                                            Object ownerObj = ownerM.invoke(t);
+                                            if (ownerObj != null && (ownerObj.toString().equalsIgnoreCase(player.getName()) || ownerObj.equals(player.getUniqueId()))) {
+                                                trapInstance = t;
+                                                break;
+                                            }
+                                        } catch (Exception ignored) {}
+
+                                        try {
+                                            Method membersM = t.getClass().getMethod("getMembers");
+                                            Object membersObj = membersM.invoke(t);
+                                            if (membersObj instanceof Collection && ((Collection<?>) membersObj).contains(player.getName())) {
+                                                trapInstance = t;
+                                                break;
+                                            }
+                                        } catch (Exception ignored) {}
+                                    }
+                                }
                                 if (trapInstance != null) break;
-                            } catch (Exception e1) {
-                                try {
-                                    Method m = trapPlugin.getClass().getMethod(mName, Chunk.class);
-                                    trapInstance = m.invoke(trapPlugin, chunk);
-                                    if (trapInstance != null) break;
-                                } catch (Exception ignored) {}
-                            }
+                            } catch (Exception ignored) {}
                         }
                     }
 
                     if (trapInstance != null) {
+                        hasActiveTag: { hasActiveTrap = true; }
+
                         String[] ownerMethods = {"getOwnerName", "getOwner", "getOwnerString"};
                         for (String om : ownerMethods) {
                             try {
@@ -297,24 +303,29 @@ public final class Main extends JavaPlugin implements Listener {
                 } catch (Exception ignored) {}
             }
 
-            // İstediğin özel renkli etiketler ve harf geçişleri
-            String[] newLines = new String[] {
-                ChatColor.GRAY + dateStr,
-                ChatColor.WHITE + "",
-                "&#FFFFFFꜱᴇɴ: " + coloredNameAndTag,
-                "&#F8D913ᴘ&#F0BD18ᴀ&#E9A01Dʀ&#E18422ᴀ: " + ChatColor.GREEN + moneyStr,
-                "&#F56B5BÖ&#F35E51ʟ&#F05146ᴅ&#EE443Cü&#EB3631ʀ&#E92927ᴍ&#E61C1Cᴇ " + ChatColor.GREEN + kills,
-                "&#F56B5BÖ&#F05146ʟ&#EB3631ᴍ&#E61C1Cᴇ: " + ChatColor.RED + deaths,
-                ChatColor.WHITE + " ",
-                ChatColor.WHITE + ":&#FFFFFFᴛʀᴀᴘ ᴄᴀɴı " + ChatColor.BLUE + TrapPluginTrapHealt,
-                ChatColor.WHITE + "&#FFFFFFᴛʀᴀᴘ ıᴅ: " + ChatColor.BLUE + TrapPluginTrapId,
-                ChatColor.WHITE + "&#FFFFFFᴛʀᴀᴘ ꜱᴀʜɪʙɪ: " + ChatColor.BLUE + TrapPluginTrapOwner,
-                ChatColor.WHITE + "  ",
-                ChatColor.WHITE + "&#FFFFFFꜱᴜɴᴜᴄᴜ: " + ChatColor.GREEN + "trappvp",
-                ChatColor.WHITE + "&#FFFFFFÇᴇᴠʀɪᴍɪçɪ: " + ChatColor.BLUE + onlinePlayers,
-                ChatColor.WHITE + "   ",
-                ChatColor.YELLOW + "&#1C4CE1ᴀ&#2652E0x&#2F59DFᴏ&#395FDEᴄ&#4365DCʀ&#4C6BDBᴀ&#5672DAꜰ&#6078D9ᴛ&#697ED8.&#7384D7ᴍ&#7D8BD6ᴄ&#8691D5ꜱ&#9097D3ʜ&#9A9DD2.&#A3A4D1ɪ&#ADAAD0ᴏ"
-            };
+            // Satırları dinamik oluşturma (Trap alanındaysa gösterir, çıkınca gizler)
+            java.util.List<String> lineList = new java.util.ArrayList<>();
+            lineList.add(ChatColor.GRAY + dateStr);
+            lineList.add(ChatColor.WHITE + "");
+            lineList.add("&#FFFFFFꜱᴇɴ: " + coloredNameAndTag);
+            lineList.add("&#F8D913ᴘ&#F0BD18ᴀ&#E9A01Dʀ&#E18422ᴀ: " + ChatColor.GREEN + moneyStr);
+            lineList.add("&#F56B5BÖ&#F35E51ʟ&#F05146ᴅ&#EE443Cü§x§E§B§3§6§3§1ʀ§x§E§9§2§9§2§7ᴍ§x§E§6§1§C§1§Cᴇ: " + ChatColor.GREEN + kills);
+            lineList.add("&#F56B5BÖ§x§F§0§5§1§4§6ʟ§x§E§B§3§6§3§1ᴍ§x§E§6§1§C§1§Cᴇ: " + ChatColor.RED + deaths);
+            
+            if (hasActiveTrap) {
+                lineList.add(ChatColor.WHITE + " ");
+                lineList.add(ChatColor.WHITE + "&#FFFFFFᴛʀᴀᴘ ᴄᴀɴı: " + ChatColor.BLUE + trapHealth);
+                lineList.add(ChatColor.WHITE + "&#FFFFFFᴛʀᴀᴘ ıᴅ: " + ChatColor.BLUE + trapId);
+                lineList.add(ChatColor.WHITE + "&#FFFFFFᴛʀᴀᴘ ꜱᴀʜɪʙɪ: " + ChatColor.BLUE + trapOwner);
+            }
+
+            lineList.add(ChatColor.WHITE + "  ");
+            lineList.add(ChatColor.WHITE + "&#FFFFFFꜱᴜɴᴜᴄᴜ: " + ChatColor.GREEN + "trappvp");
+            lineList.add(ChatColor.WHITE + "Çᴇᴠʀɪᴍ ɪçɪ: " + ChatColor.BLUE + onlinePlayers);
+            lineList.add(ChatColor.WHITE + "   ");
+            lineList.add(ChatColor.YELLOW + "&#1C4CE1ᴀ&#2652E0x&#2F59DFᴏ&#395FDEᴄ&#4365DCʀ&#4C6BDBᴀ&#5672DAꜰ&#6078D9ᴛ&#697ED8.&#7384D7ᴍ&#7D8BD6ᴄ&#8691D5ꜱ&#9097D3ʜ&#9A9DD2.&#A3A4D1ɪ&#ADAAD0ᴏ");
+
+            String[] newLines = lineList.toArray(new String[0]);
 
             for (String entry : board.getEntries()) {
                 board.resetScores(entry);
