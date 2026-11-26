@@ -301,19 +301,19 @@ public final class Main extends JavaPlugin implements Listener {
             String[] newLines = new String[] {
                 ChatColor.GRAY + dateStr,
                 ChatColor.WHITE + "",
-                "§x§F§F§F§F§F§Fꜱ§x§F§F§F§F§F§Fᴇ§x§F§F§F§F§F§Fɴ: " + coloredNameAndTag,
-                "§x§F§C§D§0§5§Cᴘ§x§F§5§D§2§4§7ᴀ§x§E§D§D§4§3§1ʀ§x§E§6§D§6§1§Cᴀ: " + ChatColor.GREEN + moneyStr,
-                "§x§F§5§6§B§5§BÖ§x§F§3§5§E§5§1ʟ§x§F§0§5§1§4§6ᴅ§x§E§E§4§4§3§Cü§x§E§B§3§6§3§1ʀ§x§E§9§2§9§2§7ᴍ§x§E§6§1§C§1§Cᴇ: " + ChatColor.GREEN + kills,
-                "§x§F§5§6§B§5§BÖ§x§F§0§5§1§4§6ʟ§x§E§B§3§6§3§1ᴍ§x§E§6§1§C§1§Cᴇ: " + ChatColor.RED + deaths,
+                "&#FFFFFFꜱᴇɴ: " + coloredNameAndTag,
+                "&#F8D913ᴘ&#F0BD18ᴀ&#E9A01Dʀ&#E18422ᴀ: " + ChatColor.GREEN + moneyStr,
+                "&#F56B5BÖ&#F35E51ʟ&#F05146ᴅ&#EE443Cü&#EB3631ʀ&#E92927ᴍ&#E61C1Cᴇ " + ChatColor.GREEN + kills,
+                "&#F56B5BÖ&#F05146ʟ&#EB3631ᴍ&#E61C1Cᴇ: " + ChatColor.RED + deaths,
                 ChatColor.WHITE + " ",
-                ChatColor.WHITE + "trap canı: " + ChatColor.BLUE + trapHealth,
-                ChatColor.WHITE + "trap id: " + ChatColor.BLUE + trapId,
-                ChatColor.WHITE + "trap sahibi: " + ChatColor.BLUE + trapOwner,
+                ChatColor.WHITE + ":&#FFFFFFᴛʀᴀᴘ ᴄᴀɴı " + ChatColor.BLUE + TrapPluginTrapHealt,
+                ChatColor.WHITE + "&#FFFFFFᴛʀᴀᴘ ıᴅ: " + ChatColor.BLUE + TrapPluginTrapId,
+                ChatColor.WHITE + "&#FFFFFFᴛʀᴀᴘ ꜱᴀʜɪʙɪ: " + ChatColor.BLUE + TrapPluginTrapOwner,
                 ChatColor.WHITE + "  ",
-                ChatColor.WHITE + "sunucu: " + ChatColor.GREEN + "trappvp",
-                ChatColor.WHITE + "çevrim içi: " + ChatColor.BLUE + onlinePlayers,
+                ChatColor.WHITE + "&#FFFFFFꜱᴜɴᴜᴄᴜ: " + ChatColor.GREEN + "trappvp",
+                ChatColor.WHITE + "&#FFFFFFÇᴇᴠʀɪᴍɪçɪ: " + ChatColor.BLUE + onlinePlayers,
                 ChatColor.WHITE + "   ",
-                ChatColor.YELLOW + "axocraft705.mcsh.io"
+                ChatColor.YELLOW + "&#1C4CE1ᴀ&#2652E0x&#2F59DFᴏ&#395FDEᴄ&#4365DCʀ&#4C6BDBᴀ&#5672DAꜰ&#6078D9ᴛ&#697ED8.&#7384D7ᴍ&#7D8BD6ᴄ&#8691D5ꜱ&#9097D3ʜ&#9A9DD2.&#A3A4D1ɪ&#ADAAD0ᴏ"
             };
 
             for (String entry : board.getEntries()) {
