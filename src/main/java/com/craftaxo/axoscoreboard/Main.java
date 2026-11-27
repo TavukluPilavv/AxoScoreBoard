@@ -308,9 +308,9 @@ public final class Main extends JavaPlugin implements Listener {
             lineList.add(ChatColor.GRAY + dateStr);
             lineList.add(ChatColor.WHITE + "");
             lineList.add("✏️ ꜱᴇɴ: " + coloredNameAndTag);
-            lineList.add("💰 &eᴘᴀʀᴀ: " + ChatColor.GREEN + moneyStr);
-            lineList.add("⚔ &4Öʟᴅüʀᴍᴇ: " + ChatColor.GREEN + kills);
-            lineList.add("💀 &cÖʟᴍᴇ: " + ChatColor.RED + deaths);
+            lineList.add("💰 ᴘᴀʀᴀ: " + ChatColor.GREEN + moneyStr);
+            lineList.add("⚔ Öʟᴅüʀᴍᴇ: " + ChatColor.GREEN + kills);
+            lineList.add("💀 Öʟᴍᴇ: " + ChatColor.RED + deaths);
             
             if (hasActiveTrap) {
                 lineList.add(ChatColor.WHITE + " ");
